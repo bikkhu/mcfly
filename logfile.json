@@ -1,0 +1,10 @@
+{"authors":["miguel","belen","ana"],
+"notes":[
+	{"timestamp":"1487590170475", "author":"miguel", "content":"Otra nota más...", "favs":{"fav_count":"0","fav_users":[]}},
+	{"timestamp":"1487590270475", "author":"ana", "content":"El gato no tiene comida.", "favs":{"fav_count":"2","fav_users":["belén", "miguel"]}},
+	{"timestamp":"1487590370475", "author":"miguel", "content":"Se me ha olvidado hacer la compra otra vez.", "favs":{"fav_count":"0","fav_users":[]}},
+	{"timestamp":"1487590470475", "author":"belén", "content":"¡Yo la hago!", "favs":{"fav_count":"2","fav_users":["ana","miguel"]}},
+	{"timestamp":"1487590570475", "author":"belén", "content":"¡Ya está!", "favs":{"fav_count":"1","fav_users":["miguel"]}},
+	{"timestamp":"1487590670475", "author":"miguel", "content":"Os espero con la cena hecha.", "favs":{"fav_count":"3","fav_users":["ana","belén","mingo"]}}
+]
+}
