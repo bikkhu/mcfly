@@ -49,67 +49,56 @@ var json_file = JSON.parse(fs.readFileSync('./logfile.json'));
 var authors_array = json_file.authors;
 var notes_array = json_file.notes;
 var server = http.createServer();
-//console.log("server created");
 
 server.on('request', control);
-server.on('close', close_sys);
 server.listen(8080);
-console.log("authors="+JSON.stringify(authors_array)+"\nand last note is "+JSON.stringify(notes_array[notes_array.length-1]));
+
+setInterval(close_sys, 100000);
+
 function control(req, res) {
-//	console.log("request received with req.method="+req.method+"\nreq.headers="+req+"\nreq.headers.origin="+req.headers.origin+"\nreq.data="+req.data);
 	req.on('data', function(chunk){
 		console.log('\x1Bc');
-//		console.log("request received");
 		var payload = JSON.parse(chunk);
-//		console.log("here's the chunk: "+chunk);
 		if ((req.method == 'POST') && (payload.action == 'write')) {
 		/*	llamar al API para crear notas:
 		*	POST con carga: {"user":string, "action":"write", "note":nota}
 		*	(los tres primeros campos de la nota llegarán completos o la nota no se guardará).
 		*/	if ((payload.user == payload.note.author) && (check_content(payload.note.content))) {
-				console.log("inside");
 				save_note(payload.note);
 				res.writeHead(200, "OK", {'Content-Type': 'text'});
 			} else {
 				res.writeHead(400, "BAD REQUEST", {'Content-Type': 'text'});
 			}
-			console.log("exiting write, now the last note is "+JSON.stringify(notes_array[notes_array.length-1]));
 		} else if ((req.method == 'POST') && (payload.action == 'read_all')) {
 		/*	llamar al API para consultar las notas:
 		*	POST con carga: {"user":string, "action":"read_all", "note":nota}
 		*	(el único campo de la nota que tiene que estar especificado es el autor que se desea consultar)
 		*/	if (check_author(payload.note.author)) {
 				res.writeHead(200, "OK", {'Content-Type': 'text'});
-				console.log("returning: "+JSON.stringify(get_notes_by_author(payload.note.author)));
 				res.write(JSON.stringify(get_notes_by_author(payload.note.author)));
 			} else {
 				res.writeHead(400, "BAD REQUEST", {'Content-Type': 'text'});
 			}
-//			console.log("exiting read_all, now the last note is "+JSON.stringify(notes_array[notes_array.length-1]));
 		} else if ((req.method == 'POST') && (payload.action == 'read_one')) {
 		/*	llamar al API para consultar una sola nota
 		*	POST con carga: {"user":string, "action":"read_one", "note":nota}
 		*	(los dos únicos campos de la nota que tienen que estar especificados es el autor y el timestamp)
 		*/	if (check_author(payload.note.author) && (check_timestamp(payload.note.timestamp))) {
 				res.writeHead(200, "OK", {'Content-Type': 'text'});
-				console.log("returning: "+JSON.stringify(get_notes_by_author(payload.note.author, payload.note.timestamp)));
 				res.write(JSON.stringify(get_notes_by_author(payload.note.author, payload.note.timestamp)));
 			} else {
 				res.writeHead(400, "BAD REQUEST", {'Content-Type': 'text'});
 			}
-//			console.log("exiting read_one, now the last note is "+JSON.stringify(notes_array[notes_array.length-1]));
 		} else if ((req.method == 'POST') && (payload.action == 'fav')) {
 		/*	llamar al API para marcar como favorita una nota:
 		*	POST con carga: {"user":string, "action":"fav", "note":nota}
 		*	(los dos únicos campos de la nota que tienen que estar especificados son el autor y el timestamp)
 		*/	if (check_author(payload.note.author) && (check_timestamp(payload.note.timestamp))) {
-//				console.log("inside fav");
 				fav(payload.user, payload.note);
 				res.writeHead(200, "OK", {'Content-Type': 'text'});
 			} else {
 				res.writeHead(400, "BAD REQUEST", {'Content-Type': 'text'});
 			}
-//			console.log("exiting fav, now the last note is "+JSON.stringify(notes_array[notes_array.length-1]));
 		} else if ((req.method == 'POST') && (payload.action == 'get_favs')) {
 		/*	llamar al API para consultar las notas marcadas como favoritas:
 		*	POST con carga: {"user":string, "action":"get_favs", "note":nota}
@@ -121,9 +110,8 @@ function control(req, res) {
 			} else {
 				res.writeHead(400, "BAD REQUEST", {'Content-Type': 'text'});
 			}
-//			console.log("exiting get_favs, now the last note is "+JSON.stringify(notes_array[notes_array.length-1]));
 		} else {
-		//	llamada incorrecta
+			//	llamada incorrecta
 			res.writeHead(400, "BAD REQUEST", {'Content-Type': 'text'});
 		}
 		res.addTrailers('Access-Control-Allow-Origin', '*');
@@ -137,12 +125,10 @@ function control(req, res) {
 
 function check_timestamp(timestamp) {
 	try {
-//		console.log("inside check_ts");
 		var d = Date.parse(timestamp);
 		return true;
 	}
 	catch (err) {
-//		console.log("got an error!");
 		return false;
 	}
 }
@@ -157,12 +143,10 @@ function check_content(content) {
 function check_author(author) {
 	var exists = false;
 	for (var i=0; i<authors_array.length; i++) exists = exists || (author == authors_array[i]);
-//	console.log("checking author "+author+". Does she exist? " + exists);
 	return exists;
 }
 
 function get_notes(kind_of_param, param, notes_array) {
- 	// fetches notes on the specified array filtering them through the specified parameters
  	var filtered_array = new Array();
  	switch (kind_of_param) {
  		case "timestamp":
@@ -228,26 +212,21 @@ function save_note(note) {
 
 function fav(user, note) {
 	var array = new Array();
-//	console.log("inside fav function");
 	for (var j=0; j<notes_array.length; j++) {
 		var note_element = notes_array[j];
-//		console.log("note_element.timestamp "+note_element.timestamp);
 		if (note_element.timestamp == note.timestamp) {
-//			console.log("now here!");
 			if (note_element.author == note.author) {
-//				console.log("here!");
 				var already_faved = false;
 				for (var i=0; i<note_element.favs.fav_users.length; i++) already_faved = already_faved || (note_element.favs.fav_users[i] == user);
 				if (!already_faved) {
 					note_element.favs.fav_users.push(user);
 					note_element.favs.fav_count++;
-					console.log(user+" just faved this note: "+note_element.content);
 				}
 			}
 		}
 	}
 }
 
-function close_sys() {
+function update_log() {
 	fs.writeFileSync('./logfile.json', JSON.stringify({"authors":authors_array, "notes":notes_array}));
 }

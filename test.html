@@ -44,16 +44,13 @@
 								}
 							}
 						});
-					console.log("payload="+payload);
 					$http({
 						method: "POST",
-						url: "http://92.57.163.87",
+						url: "http://localhost:8080",
 						data: payload,
 						headers: {'Content-Type': 'application/x-www-form-urlencoded'}
 					}).then(function myresponse(response){
-						$("div#screen").innerHTML=response.data;
 					}, function myerror(response){
-						$("div#screen").innerHTML="ERROR";;
 					});
 				}
 			});
